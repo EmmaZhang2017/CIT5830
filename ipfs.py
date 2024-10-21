@@ -7,9 +7,7 @@ import json
 def pin_to_ipfs(data):
 
     json_data = json.dumps(data)
-    ipfs_api_url = 'https://ipfs.infura.io:5001/api/v0/add'
-    
-    response = requests.post(ipfs_api_url, files={'file': json_data})
+    response = requests.post('https://ipfs.infura.io:5001/api/v0/add', files=files, auth=('113ca7669446446fa69a2c968bbf1bde','3LzF+FZcy3PHHvYIQdKeHaj7vt9QHu/OKT44V+ilBJsFjfbyD5cPqw'))
     
     if response.status_code == 200:
         cid = response.json()['Hash']
@@ -19,7 +17,7 @@ def pin_to_ipfs(data):
         raise Exception("Error uploading to IPFS.")
 
 
-
+https://ipfs.infura.io:5001/api/v0/add
 
 
 
