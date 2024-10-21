@@ -1,3 +1,9 @@
+import requests
+import json
+
+
+
+
 def pin_to_ipfs(data):
     # Convert the dictionary to a JSON string
     json_data = json.dumps(data)
