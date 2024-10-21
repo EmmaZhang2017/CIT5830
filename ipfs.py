@@ -5,22 +5,22 @@ import json
 
 
 def pin_to_ipfs(data):
-    # Convert the dictionary to a JSON string
+
     json_data = json.dumps(data)
+    ipfs_api_url = 'http://localhost:5001/api/v0/add'
     
-    # Define the IPFS API endpoint
-    ipfs_api_url = 'https://mainnet.infura.io/v3/113ca7669446446fa69a2c968bbf1bde'
+    response = requests.post(ipfs_api_url, files={'file': json_data})
     
-    # Use the 'add' endpoint to upload the JSON data
-    response = requests.post(ipfs_api_url + 'add', files={'file': json_data})
-    
-    # Check if the request was successful
     if response.status_code == 200:
-        # Extract the CID from the response
         cid = response.json()['Hash']
         return cid
     else:
-        raise Exception(f"Error uploading to IPFS: {response.text}")
+        print(f"Error: {response.status_code} - {response.text}")
+        raise Exception("Error uploading to IPFS.")
+
+
+
+
 
 
 def get_from_ipfs(cid, content_type="json"):
