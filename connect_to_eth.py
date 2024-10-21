@@ -11,7 +11,7 @@ infura_url = f"https://mainnet.infura.io/v3/{infura_token}"
 
 
 def connect_to_eth():
-	url = "https://mainnet.infura.io/v3/{113ca7669446446fa69a2c968bbf1bde}"  # FILL THIS IN
+	url = "https://mainnet.infura.io/v3/{113ca7669446446fa69a2c968bbf1bde"  # FILL THIS IN
 	w3 = Web3(HTTPProvider(url))
 	assert w3.is_connected(), f"Failed to connect to provider at {url}"
 	return w3
@@ -26,7 +26,7 @@ def connect_with_middleware(contract_json):
 
 	# TODO complete this method
 	# The first section will be the same as "connect_to_eth()" but with a BNB url
-	w3 = Web3(HTTPProvider("https://opbnb-testnet.infura.io/v3/{113ca7669446446fa69a2c968bbf1bde}"))
+	w3 = Web3(HTTPProvider("https://opbnb-testnet.infura.io/v3/113ca7669446446fa69a2c968bbf1bde"))
 
 	# The second section requires you to inject middleware into your w3 object and
 	# create a contract object. Read more on the docs pages at https://web3py.readthedocs.io/en/stable/middleware.html
