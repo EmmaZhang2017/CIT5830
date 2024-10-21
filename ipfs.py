@@ -46,27 +46,30 @@ def pin_to_ipfs(data):
 
 
 
+INFURA_API_URL_1 = "https://ipfs.infura.io/ipfs/"
 
+def get_from_ipfs(ipfs_hash):
+    """
+    Retrieve data from IPFS using Infura API and the given IPFS hash (CID).
 
-def get_from_ipfs(cid, content_type="json"):
-    assert isinstance(cid, str), "get_from_ipfs accepts a cid in the form of a string"
-    
-    # Define the IPFS API endpoint
-    ipfs_api_url = "https://mainnet.infura.io/v3/113ca7669446446fa69a2c968bbf1bde/cat?arg={cid}"
-    
-    # Make a GET request to retrieve the data
-    response = requests.get(ipfs_api_url)
+    Parameters:
+    - ipfs_hash: The IPFS hash (CID) of the pinned content.
 
-    # Check if the request was successful
-    if response.status_code == 200:
-        if content_type == "json":
-            # Parse the response as JSON
-            data = json.loads(response.text)
-        else:
-            # Return plain text or other formats as needed
-            data = response.text
+    Returns:
+    - The content retrieved from IPFS as text.
+    """
+    try:
+        # Construct the URL to access the IPFS content via Infura gateway
+        url = INFURA_API_URL_1 + ipfs_hash
         
-        assert isinstance(data, dict), "get_from_ipfs should return a dict"
-        return data
-    else:
-        raise Exception(f"Error retrieving from IPFS: {response.text}")
+        # Make a GET request to retrieve the content
+        response = requests.get(url)
+        response.raise_for_status()
+        
+        # Return the content as text (or you can handle binary data depending on the content)
+        return response.text
+    
+    except requests.exceptions.HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")
+    except Exception as err:
+        print(f"An error occurred: {err}")
