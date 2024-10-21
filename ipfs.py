@@ -7,7 +7,7 @@ import json
 def pin_to_ipfs(data):
 
     json_data = json.dumps(data)
-    ipfs_api_url = 'http://localhost:5001/api/v0/add'
+    ipfs_api_url = 'https://ipfs.infura.io:5001/api/v0/add'
     
     response = requests.post(ipfs_api_url, files={'file': json_data})
     
