@@ -15,3 +15,27 @@ def pin_to_ipfs(data):
         return cid
     else:
         raise Exception(f"Error uploading to IPFS: {response.text}")
+
+
+def get_from_ipfs(cid, content_type="json"):
+    assert isinstance(cid, str), "get_from_ipfs accepts a cid in the form of a string"
+    
+    # Define the IPFS API endpoint
+    ipfs_api_url = f'http://localhost:5001/api/v0/cat?arg={cid}'
+    
+    # Make a GET request to retrieve the data
+    response = requests.get(ipfs_api_url)
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        if content_type == "json":
+            # Parse the response as JSON
+            data = json.loads(response.text)
+        else:
+            # Return plain text or other formats as needed
+            data = response.text
+        
+        assert isinstance(data, dict), "get_from_ipfs should return a dict"
+        return data
+    else:
+        raise Exception(f"Error retrieving from IPFS: {response.text}")
