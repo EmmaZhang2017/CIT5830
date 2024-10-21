@@ -9,7 +9,7 @@ def pin_to_ipfs(data):
     json_data = json.dumps(data)
     
     # Define the IPFS API endpoint
-    ipfs_api_url = 'http://localhost:5001/api/v0/'
+    ipfs_api_url = 'https://mainnet.infura.io/v3/113ca7669446446fa69a2c968bbf1bde'
     
     # Use the 'add' endpoint to upload the JSON data
     response = requests.post(ipfs_api_url + 'add', files={'file': json_data})
@@ -27,7 +27,7 @@ def get_from_ipfs(cid, content_type="json"):
     assert isinstance(cid, str), "get_from_ipfs accepts a cid in the form of a string"
     
     # Define the IPFS API endpoint
-    ipfs_api_url = f'http://localhost:5001/api/v0/cat?arg={cid}'
+    ipfs_api_url = 'https://mainnet.infura.io/v3/113ca7669446446fa69a2c968bbf1bde/cat?arg={cid}'
     
     # Make a GET request to retrieve the data
     response = requests.get(ipfs_api_url)
