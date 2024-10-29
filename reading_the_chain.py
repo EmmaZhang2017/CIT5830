@@ -41,7 +41,7 @@ def connect_with_middleware(contract_json):
         raise ValueError("Contract JSON must contain 'abi' and 'address' keys.")
 
     abi = contract_data['bsc']['abi']
-    address = contract_data['address']
+    address = contract_data['bsc']['address']
 
     contract = w3.eth.contract(address=address, abi=abi)
     
