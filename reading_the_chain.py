@@ -59,9 +59,6 @@ def connect_with_middleware(contract_json):
 
 
 
-
-
-
 def is_ordered_block(w3, block_num):
     block = w3.eth.get_block(block_num, full_transactions=True)
     base_fee = block.get('baseFeePerGas', 0)
@@ -78,14 +75,15 @@ def is_ordered_block(w3, block_num):
 
         priority_fees.append(priority_fee)
     
-    # Check if we have any priority fees to evaluate
+    # Treat blocks with no priority fee transactions as ordered by default
     if not priority_fees:
-        print(f"Block {block_num} has no relevant transactions. Treating as unordered by default.")
-        return False
+        print(f"Block {block_num} has no relevant transactions. Treating as ordered by default.")
+        return True
 
-    # Check if the list is in descending order
+    # Check if the priority fees are in descending order
     ordered = all(priority_fees[i] >= priority_fees[i + 1] for i in range(len(priority_fees) - 1))
     return ordered
+	
 
 
 
