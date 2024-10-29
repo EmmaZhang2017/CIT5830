@@ -31,7 +31,7 @@ def connect_to_eth():
 
 	
 def connect_with_middleware(contract_json):
-    provider_url = "https://opbnb-testnet.infura.io/v3/113ca7669446446fa69a2c968bbf1bde"
+    provider_url = "https://mainnet.infura.io/v3/113ca7669446446fa69a2c968bbf1bde"
     w3 = Web3(Web3.HTTPProvider(provider_url))
     
     w3.middleware_onion.inject(geth_poa_middleware, layer=0)
