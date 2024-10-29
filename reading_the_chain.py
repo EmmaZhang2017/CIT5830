@@ -44,19 +44,12 @@ def connect_with_middleware(contract_json):
     print("Connected to the network.")
 
     # Load contract JSON
-    try:
-        with open(contract_json) as f:
-            contract_data = json.load(f)
-    except Exception as e:
-        print("Error loading contract JSON:", e)
-        return None, None
+    with open(contract_json, "r") as f:
+		d = json.load(f)
+		d = d['bsc']
+		address = d['address']
+		abi = d['abi']
 
-    # Verify 'abi' and 'address'
-    if 'abi' not in contract_data or 'address' not in contract_data:
-        raise ValueError("Contract JSON must contain 'abi' and 'address' keys.")
-
-    abi = contract_data['abi']
-    address = contract_data['address']
 
     if not isinstance(abi, list):
         raise TypeError("ABI should be a list. Check the JSON format.")
