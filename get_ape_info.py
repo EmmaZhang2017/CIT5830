@@ -17,7 +17,7 @@ with open('/home/codio/workspace/abi.json', 'r') as f:
 
 ############################
 #Connect to an Ethereum node
-api_url = #YOU WILL NEED TO TO PROVIDE THE URL OF AN ETHEREUM NODE
+api_url = "https://mainnet.infura.io/v3/113ca7669446446fa69a2c968bbf1bde" #YOU WILL NEED TO TO PROVIDE THE URL OF AN ETHEREUM NODE
 provider = HTTPProvider(api_url)
 web3 = Web3(provider)
 
@@ -29,9 +29,7 @@ def get_ape_info(apeID):
 	
 	#YOUR CODE HERE	
 
-    	# Define the API endpoint
-    	api_url = "https://api.etherscan.io/api?module=contract&action=getabi&address=0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D"
-    
+    	# Define the API endpoint    
     	try:
 		# Make the API request
 		response = requests.get(api_url)
