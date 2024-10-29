@@ -41,7 +41,9 @@ def connect_with_middleware(contract_json):
         raise ValueError("Contract JSON must contain 'abi' and 'address' keys.")
     
     abi = contract_data["bsc"]["abi"]
+	
     address = contract_data["bsc"]["address"]
+    address = Web3.toChecksumAddress(address)
 
     # Check ABI and address types
     if not isinstance(abi, list) or not isinstance(address, str):
