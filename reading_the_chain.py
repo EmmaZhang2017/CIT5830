@@ -54,9 +54,6 @@ def connect_with_middleware(contract_json):
     if not isinstance(abi, list):
         raise TypeError("ABI should be a list. Check the JSON format.")
     
-    if not Web3.isAddress(address):
-        raise ValueError("Invalid contract address format.")
-
     address = to_checksum_address(address)
 
     # Instantiate contract
