@@ -37,11 +37,16 @@ def connect_with_middleware(contract_json):
     with open(contract_json) as f:
         contract_data = json.load(f)
 
-    if 'abi' not in contract_data['bsc'] or 'address' not in contract_data['bsc'] :
+    if 'abi' not in contract_data or 'address' not in contract_data:
         raise ValueError("Contract JSON must contain 'abi' and 'address' keys.")
+    
+    abi = contract_data['abi']
+    address = contract_data['address']
 
-    abi = contract_data['bsc']['abi']
-    address = contract_data['bsc']['address']
+    # Check ABI and address types
+    if not isinstance(abi, list) or not isinstance(address, str):
+        print("Invalid ABI or address format.")
+        return None, None
 
     contract = w3.eth.contract(address=address, abi=abi)
     
@@ -51,6 +56,10 @@ def connect_with_middleware(contract_json):
         print("Connection to BNB testnet failed")
     
     return w3, contract
+
+
+
+
 
 
 def is_ordered_block(w3, block_num):
@@ -69,14 +78,14 @@ def is_ordered_block(w3, block_num):
 
         priority_fees.append(priority_fee)
     
-    # Check if there are any priority fees to evaluate
+    # Check if we have any priority fees to evaluate
     if not priority_fees:
-        print(f"Block {block_num} has no relevant transactions. Treating as ordered.")
-        return True
+        print(f"Block {block_num} has no relevant transactions. Treating as unordered by default.")
+        return False
 
+    # Check if the list is in descending order
     ordered = all(priority_fees[i] >= priority_fees[i + 1] for i in range(len(priority_fees) - 1))
     return ordered
-
 
 
 
