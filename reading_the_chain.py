@@ -37,11 +37,11 @@ def connect_with_middleware(contract_json):
     with open(contract_json) as f:
         contract_data = json.load(f)
 
-    if 'abi' not in contract_data['bsc'] or 'address' not in contract_data['bsc']:
+    if "abi" not in contract_data["bsc"] or "address" not in contract_data["bsc"]:
         raise ValueError("Contract JSON must contain 'abi' and 'address' keys.")
     
-    abi = contract_data['bsc']['abi']
-    address = contract_data['bsc']['address']
+    abi = contract_data["bsc"]["abi"]
+    address = contract_data["bsc"]["address"]
 
     # Check ABI and address types
     if not isinstance(abi, list) or not isinstance(address, str):
