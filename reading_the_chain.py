@@ -53,29 +53,29 @@ def connect_with_middleware(contract_json):
     return w3, contract
 
 
-
 def is_ordered_block(w3, block_num):
     block = w3.eth.get_block(block_num, full_transactions=True)
     base_fee = block.get('baseFeePerGas', 0)
-
+    
     priority_fees = []
 
     for tx in block.transactions:
-        if tx.type == '0x0':  # Type 0 (legacy transaction)
+        if tx.type == '0x0':
             priority_fee = tx.gasPrice - base_fee
-        elif tx.type == '0x2':  # Type 2 (EIP-1559 transaction)
+        elif tx.type == '0x2':
             priority_fee = min(tx.maxPriorityFeePerGas, tx.maxFeePerGas - base_fee)
         else:
             continue
 
         priority_fees.append(priority_fee)
-
-    print(f"Block {block_num} priority fees: {priority_fees}")  # Debugging statement
+    
+    # Check if there are any priority fees to evaluate
+    if not priority_fees:
+        print(f"Block {block_num} has no relevant transactions. Treating as ordered.")
+        return True
 
     ordered = all(priority_fees[i] >= priority_fees[i + 1] for i in range(len(priority_fees) - 1))
     return ordered
-
-
 
 
 
