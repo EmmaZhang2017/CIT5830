@@ -3,7 +3,7 @@ import json
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
 from web3.providers.rpc import HTTPProvider
-from web3 import to_checksum_address
+
 
 
 # If you use one of the suggested infrastructure providers, the url will be of the form
@@ -44,7 +44,7 @@ def connect_with_middleware(contract_json):
     abi = contract_data["bsc"]["abi"]
 	
     address = contract_data["bsc"]["address"]
-    address = Web3.to_checksum_address(address)
+    address = Web3.toChecksumAddress(address)
 
     # Check ABI and address types
     if not isinstance(abi, list) or not isinstance(address, str):
