@@ -25,8 +25,9 @@ def connect_to_eth():
     else:
         print("Connection failed")
 
-	return w3
+    return w3
 
+	
 
 def connect_with_middleware(contract_json):
     # Replace the provider URL with your Ethereum node provider URL
@@ -54,7 +55,7 @@ def connect_with_middleware(contract_json):
 
     return w3, contract
 
-
+	
 def is_ordered_block(w3, block_num):
     """
     Takes a block number
