@@ -40,7 +40,7 @@ def connect_with_middleware(contract_json):
     if 'abi' not in contract_data['bsc'] or 'address' not in contract_data['bsc'] :
         raise ValueError("Contract JSON must contain 'abi' and 'address' keys.")
 
-    abi = contract_data['abi']
+    abi = contract_data['bsc']['abi']
     address = contract_data['address']
 
     contract = w3.eth.contract(address=address, abi=abi)
@@ -56,8 +56,6 @@ def connect_with_middleware(contract_json):
 
 def is_ordered_block(w3, block_num):
     block = w3.eth.get_block(block_num, full_transactions=True)
-
-    # Check if baseFeePerGas is available (post-EIP-1559)
     base_fee = block.get('baseFeePerGas', 0)
 
     priority_fees = []
@@ -72,8 +70,14 @@ def is_ordered_block(w3, block_num):
 
         priority_fees.append(priority_fee)
 
+    print(f"Block {block_num} priority fees: {priority_fees}")  # Debugging statement
+
     ordered = all(priority_fees[i] >= priority_fees[i + 1] for i in range(len(priority_fees) - 1))
     return ordered
+
+
+
+
 
 
 def get_contract_values(contract, admin_address, owner_address):
