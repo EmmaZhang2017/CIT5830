@@ -34,37 +34,23 @@ def connect_to_eth():
 
 
 def connect_with_middleware(contract_json):
-    provider_url = "https://data-seed-prebsc-1-s1.binance.org:8545/"
-    w3 = Web3(Web3.HTTPProvider(provider_url))
-    w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+	with open(contract_json, "r") as f:
+		d = json.load(f)
+		d = d['bsc']
+		address = d['address']
+		abi = d['abi']
 
-    if not w3.is_connected():
-        print("Failed to connect to the network.")
-        return None, None
-    print("Connected to the network.")
+	# TODO complete this method
+	# The first section will be the same as "connect_to_eth()" but with a BNB url
+	w3 = Web3(HTTPProvider("https://opbnb-testnet.infura.io/v3/113ca7669446446fa69a2c968bbf1bde"))
+	w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
-    # Load contract JSON
-    with open(contract_json, "r") as f:
-	    d = json.load(f)
-	    d = d['bsc']
-	    address = d['address']
-	    abi = d['abi']
+	# The second section requires you to inject middleware into your w3 object and
+	# create a contract object. Read more on the docs pages at https://web3py.readthedocs.io/en/stable/middleware.html
+	# and https://web3py.readthedocs.io/en/stable/web3.contract.html
+	contract = w3.eth.contract(address=address, abi=abi)
 
-
-    if not isinstance(abi, list):
-        raise TypeError("ABI should be a list. Check the JSON format.")
-    
-    address = to_checksum_address(address)
-
-    # Instantiate contract
-    try:
-        contract = w3.eth.contract(address=address, abi=abi)
-        print("Contract instantiated successfully.")
-    except Exception as e:
-        print("Error instantiating contract:", e)
-        return None, None
-
-    return w3, contract
+	return w3, contract
 
 
 
