@@ -29,6 +29,32 @@ def get_ape_info(apeID):
 	
 	#YOUR CODE HERE	
 
+    	# Define the API endpoint
+    	api_url = "https://api.etherscan.io/api?module=contract&action=getabi&address=0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D"
+    
+    	try:
+		# Make the API request
+		response = requests.get(api_url)
+        	response.raise_for_status()
+        	ape_data = response.json()
+        
+        	# Extract owner, image, and eye attribute
+        	data['owner'] = ape_data['owner']['address']
+        	data['image'] = ape_data['image_url']
+        
+        	# Find the "eyes" attribute if it exists
+        	attributes = ape_data.get('traits', [])
+        	for trait in attributes:
+            		if trait['trait_type'].lower() == 'eyes':
+                		data['eyes'] = trait['value']
+                		break
+
+    	except requests.RequestException as e:
+        	print(f"Error fetching data for apeID {apeID}: {e}")
+    	except KeyError:
+        	print(f"Data format for apeID {apeID} not as expected.")
+
+
 	assert isinstance(data,dict), f'get_ape_info{apeID} should return a dict' 
 	assert all( [a in data.keys() for a in ['owner','image','eyes']] ), f"return value should include the keys 'owner','image' and 'eyes'"
 	return data
