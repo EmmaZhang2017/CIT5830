@@ -64,13 +64,6 @@ def connect_with_middleware(contract_json):
         print("Error instantiating contract:", e)
         return None, None
 
-    # Test interaction with a simple function
-    try:
-        contract_name = contract.functions.name().call()  # Replace `name` with an actual function
-        print("Contract name:", contract_name)
-    except Exception as e:
-        print("Error interacting with contract:", e)
-
     return w3, contract
 
 
