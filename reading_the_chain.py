@@ -20,7 +20,7 @@ def connect_to_eth():
     w3 = Web3(Web3.HTTPProvider(provider_url))
     
     # Check if connected
-    if w3.is_Connected():
+    if w3.is_connected():
         print("Successfully connected to Ethereum")
     else:
         print("Connection failed")
