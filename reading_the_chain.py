@@ -40,7 +40,7 @@ def connect_with_middleware(contract_json):
 
 	# TODO complete this method
 	# The first section will be the same as "connect_to_eth()" but with a BNB url
-	w3 = Web3(HTTPProvider("https://opbnb-testnet.infura.io/v3/113ca7669446446fa69a2c968bbf1bde"))
+	w3 = Web3(HTTPProvider("https://data-seed-prebsc-1-s1.binance.org:8545/"))
 	w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
 	# The second section requires you to inject middleware into your w3 object and
