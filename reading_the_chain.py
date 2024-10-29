@@ -3,7 +3,8 @@ import json
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
 from web3.providers.rpc import HTTPProvider
-from eth_utils import to_checksum_address  # Import from eth_utils
+from eth_utils import to_checksum_address  # Import from eth_utils\
+
 
 
 
@@ -31,24 +32,58 @@ def connect_to_eth():
 
 
 
+
 def connect_with_middleware(contract_json):
-	with open(contract_json, "r") as f:
-		d = json.load(f)
-		d = d['bsc']
-		address = d['address']
-		abi = d['abi']
+    provider_url = "https://data-seed-prebsc-1-s1.binance.org:8545/"
+    w3 = Web3(Web3.HTTPProvider(provider_url))
+    w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
-	# TODO complete this method
-	# The first section will be the same as "connect_to_eth()" but with a BNB url
-	w3 = Web3(HTTPProvider("https://data-seed-prebsc-1-s1.binance.org:8545/"))
-	w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+    if not w3.is_connected():
+        print("Failed to connect to the network.")
+        return None, None
+    print("Connected to the network.")
 
-	# The second section requires you to inject middleware into your w3 object and
-	# create a contract object. Read more on the docs pages at https://web3py.readthedocs.io/en/stable/middleware.html
-	# and https://web3py.readthedocs.io/en/stable/web3.contract.html
-	contract = w3.eth.contract(address=address, abi=abi)
+    # Load contract JSON
+    try:
+        with open(contract_json) as f:
+            contract_data = json.load(f)
+    except Exception as e:
+        print("Error loading contract JSON:", e)
+        return None, None
 
-	return w3, contract
+    # Verify 'abi' and 'address'
+    if 'abi' not in contract_data or 'address' not in contract_data:
+        raise ValueError("Contract JSON must contain 'abi' and 'address' keys.")
+
+    abi = contract_data['abi']
+    address = contract_data['address']
+
+    if not isinstance(abi, list):
+        raise TypeError("ABI should be a list. Check the JSON format.")
+    
+    if not Web3.isAddress(address):
+        raise ValueError("Invalid contract address format.")
+
+    address = to_checksum_address(address)
+
+    # Instantiate contract
+    try:
+        contract = w3.eth.contract(address=address, abi=abi)
+        print("Contract instantiated successfully.")
+    except Exception as e:
+        print("Error instantiating contract:", e)
+        return None, None
+
+    # Test interaction with a simple function
+    try:
+        contract_name = contract.functions.name().call()  # Replace `name` with an actual function
+        print("Contract name:", contract_name)
+    except Exception as e:
+        print("Error interacting with contract:", e)
+
+    return w3, contract
+
+
 
 
 
