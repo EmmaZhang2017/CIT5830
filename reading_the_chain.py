@@ -45,11 +45,11 @@ def connect_with_middleware(contract_json):
 	BNB_url = "https://data-seed-prebsc-1-s1.binance.org:8545/"
 
 	w3 = Web3(HTTPProvider(BNB_url))
-	w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
 	# The second section requires you to inject middleware into your w3 object and
 	# create a contract object. Read more on the docs pages at https://web3py.readthedocs.io/en/stable/middleware.html
 	# and https://web3py.readthedocs.io/en/stable/web3.contract.html
+	w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 	contract = w3.eth.contract(address=address, abi=abi)
 
 	return w3, contract
