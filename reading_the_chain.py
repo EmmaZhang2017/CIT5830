@@ -45,10 +45,10 @@ def connect_with_middleware(contract_json):
 
     # Load contract JSON
     with open(contract_json, "r") as f:
-		d = json.load(f)
-		d = d['bsc']
-		address = d['address']
-		abi = d['abi']
+	    d = json.load(f)
+	    d = d['bsc']
+	    address = d['address']
+	    abi = d['abi']
 
 
     if not isinstance(abi, list):
