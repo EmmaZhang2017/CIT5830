@@ -42,7 +42,7 @@ def connect_with_middleware(contract_json):
 
 	# TODO complete this method
 	# The first section will be the same as "connect_to_eth()" but with a BNB url
-	BNB_url = "https://data-seed-prebsc-1-s1.binance.org:8545/"
+	BNB_url = "https://misty-fragrant-butterfly.bsc-testnet.quiknode.pro/821435a9bf06bb1bb6621cd7365b22c3f08ce681"
 
 	w3 = Web3(HTTPProvider(BNB_url))
 
