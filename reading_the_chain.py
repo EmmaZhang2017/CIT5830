@@ -29,39 +29,24 @@ def connect_to_eth():
 
     return w3
 
-	
+
 def connect_with_middleware(contract_json):
-    provider_url = "https://mainnet.infura.io/v3/113ca7669446446fa69a2c968bbf1bde"
-    w3 = Web3(Web3.HTTPProvider(provider_url))
-    
-    w3.middleware_onion.inject(geth_poa_middleware, layer=0)
-    
-    with open(contract_json) as f:
-        contract_data = json.load(f)
+	with open(contract_json, "r") as f:
+		d = json.load(f)
+		d = d['bsc']
+		address = d['address']
+		abi = d['abi']
 
-    if "abi" not in contract_data["bsc"] or "address" not in contract_data["bsc"]:
-        raise ValueError("Contract JSON must contain 'abi' and 'address' keys.")
-    
-    abi = contract_data["bsc"]["abi"]
-	
-    address = contract_data["bsc"]["address"]
-    address = to_checksum_address(address)
+	# TODO complete this method
+	# The first section will be the same as "connect_to_eth()" but with a BNB url
+	w3 = Web3(HTTPProvider("https://opbnb-testnet.infura.io/v3/113ca7669446446fa69a2c968bbf1bde"))
 
-    # Check ABI and address types
-    if not isinstance(abi, list) or not isinstance(address, str):
-        print("Invalid ABI or address format.")
-        return None, None
+	# The second section requires you to inject middleware into your w3 object and
+	# create a contract object. Read more on the docs pages at https://web3py.readthedocs.io/en/stable/middleware.html
+	# and https://web3py.readthedocs.io/en/stable/web3.contract.html
+	contract = w3.eth.contract(address=address, abi=abi)
 
-    contract = w3.eth.contract(address=address, abi=abi)
-    
-    if w3.is_connected():
-        print("Successfully connected to BNB testnet and contract instantiated")
-    else:
-        print("Connection to BNB testnet failed")
-    
-    return w3, contract
-
-
+	return w3, contract
 
 def is_ordered_block(w3, block_num):
     block = w3.eth.get_block(block_num, full_transactions=True)
