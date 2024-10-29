@@ -20,7 +20,7 @@ def connect_to_eth():
     w3 = Web3(Web3.HTTPProvider(provider_url))
     
     # Check if connected
-    if w3.isConnected():
+    if w3.is_Connected():
         print("Successfully connected to Ethereum")
     else:
         print("Connection failed")
@@ -28,32 +28,32 @@ def connect_to_eth():
     return w3
 
 	
-
 def connect_with_middleware(contract_json):
-    # Replace the provider URL with your Ethereum node provider URL
-    provider_url = "https://mainnet.infura.io/v3/v3/113ca7669446446fa69a2c968bbf1bde"
+    provider_url = "https://bsc-dataseed.binance.org/"
     w3 = Web3(Web3.HTTPProvider(provider_url))
     
-    # Add middleware (useful for certain test networks like Rinkeby or Goerli)
     w3.middleware_onion.inject(geth_poa_middleware, layer=0)
     
-    # Load contract JSON to get ABI and address
     with open(contract_json) as f:
         contract_data = json.load(f)
-    
-    abi = contract_data['abi']               # Contract ABI
-    address = contract_data['address']       # Contract address
-    
-    # Instantiate the contract
+
+    if 'abi' not in contract_data or 'address' not in contract_data:
+        raise ValueError("Contract JSON must contain 'abi' and 'address' keys.")
+
+    abi = contract_data['abi']
+    address = contract_data['address']
+
     contract = w3.eth.contract(address=address, abi=abi)
     
-    # Check if connected and contract instantiated
-    if w3.isConnected():
-        print("Successfully connected to Ethereum and contract instantiated")
+    if w3.is_connected():
+        print("Successfully connected to BNB testnet and contract instantiated")
     else:
-        print("Connection to Ethereum failed")
-
+        print("Connection to BNB testnet failed")
+    
     return w3, contract
+
+
+
 
 	
 def is_ordered_block(w3, block_num):
