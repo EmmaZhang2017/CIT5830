@@ -42,7 +42,7 @@ def get_ape_info(apeID):
         	token_uri = token_uri.replace("ipfs://", "https://ipfs.io/ipfs/")
     
     	# Fetch the metadata
-   	response = requests.get(token_uri)
+	response = requests.get(token_uri)
     	if response.status_code == 200:
        		metadata = response.json()
         	data['image'] = metadata.get('image', "")
