@@ -30,7 +30,7 @@ def get_ape_info(apeID):
 	#YOUR CODE HERE	
 	############
 	    # Fetch the owner of the token
-    	data['owner'] = contract.functions.ownerOf(apeID).call()
+	data['owner'] = contract.functions.ownerOf(apeID).call()
     
     	# Get the token's URI for metadata
     	token_uri = contract.functions.tokenURI(apeID).call()
