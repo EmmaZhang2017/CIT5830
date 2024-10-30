@@ -42,10 +42,10 @@ def get_ape_info(apeID):
 
         # Find the "eyes" attribute if it exists
 	attributes = ape_data.get('traits', [])
-        for trait in attributes:
-            if trait['trait_type'].lower() == 'eyes':
-                data['eyes'] = trait['value']
-                break
+	for trait in attributes:
+		if trait['trait_type'].lower() == 'eyes':
+			data['eyes'] = trait['value']
+			break
 
 	assert isinstance(data,dict), f'get_ape_info{apeID} should return a dict' 
 	assert all( [a in data.keys() for a in ['owner','image','eyes']] ), f"return value should include the keys 'owner','image' and 'eyes'"
