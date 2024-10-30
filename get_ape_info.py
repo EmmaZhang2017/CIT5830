@@ -34,7 +34,7 @@ def get_ape_info(apeID):
 	# Make the API request
 	response = requests.get(api_url)
 	response.raise_for_status()
-        ape_data = response.json()
+	ape_data = response.json()
 
         # Extract owner, image, and eye attribute
         data['owner'] = ape_data['owner']['address']
