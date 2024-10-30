@@ -28,24 +28,34 @@ def get_ape_info(apeID):
 	data = {'owner': "", 'image': "", 'eyes': "" }
 	
 	#YOUR CODE HERE	
+	############
+	    # Fetch the owner of the token
+    	data['owner'] = contract.functions.ownerOf(apeID).call()
+    
+    	# Get the token's URI for metadata
+    	token_uri = contract.functions.tokenURI(apeID).call()
+    
+    	# Fetch the metadata
+    	response = requests.get(token_uri)
+    	if response.status_code == 200:
+        	metadata = response.json()
+        	data['image'] = metadata.get('image', "")
+        
+        	# Look for "eyes" trait in the attributes
+        	attributes = metadata.get('attributes', [])
+        	for attr in attributes:
+            		if attr.get('trait_type') == 'Eyes':
+                		data['eyes'] = attr.get('value', "")
+                		break
+    	else:
+        	print(f"Failed to retrieve metadata for apeID {apeID}")
 
-    	# Define the API endpoint    
 
-	# Make the API request
-	response = requests.get(api_url)
-	response.raise_for_status()
-	ape_data = response.json()
 
-        # Extract owner, image, and eye attribute
-	data['owner'] = ape_data['owner']['address']
-	data['image'] = ape_data['image_url']
 
-        # Find the "eyes" attribute if it exists
-	attributes = ape_data.get('traits', [])
-	for trait in attributes:
-		if trait['trait_type'].lower() == 'eyes':
-			data['eyes'] = trait['value']
-			break
+
+
+	#############
 
 	assert isinstance(data,dict), f'get_ape_info{apeID} should return a dict' 
 	assert all( [a in data.keys() for a in ['owner','image','eyes']] ), f"return value should include the keys 'owner','image' and 'eyes'"
