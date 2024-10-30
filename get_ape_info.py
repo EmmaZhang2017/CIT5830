@@ -37,11 +37,11 @@ def get_ape_info(apeID):
 	ape_data = response.json()
 
         # Extract owner, image, and eye attribute
-        data['owner'] = ape_data['owner']['address']
-        data['image'] = ape_data['image_url']
+	data['owner'] = ape_data['owner']['address']
+	data['image'] = ape_data['image_url']
 
         # Find the "eyes" attribute if it exists
-        attributes = ape_data.get('traits', [])
+	attributes = ape_data.get('traits', [])
         for trait in attributes:
             if trait['trait_type'].lower() == 'eyes':
                 data['eyes'] = trait['value']
