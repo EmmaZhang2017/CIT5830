@@ -58,7 +58,7 @@ def get_ape_info(apeID):
             		if attr.get('trait_type') == 'Eyes':
                 		data['eyes'] = attr.get('value', "")
                 		break
-    	else:
+	else:
         	print(f"Failed to retrieve metadata for apeID {apeID}")
 
 
