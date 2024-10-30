@@ -37,7 +37,7 @@ def get_ape_info(apeID):
     
     	# Fetch the metadata
 	response = requests.get(token_uri)
-    	if response.status_code == 200:
+	if response.status_code == 200:
         	metadata = response.json()
         	data['image'] = metadata.get('image', "")
         
