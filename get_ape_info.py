@@ -22,9 +22,9 @@ provider = HTTPProvider(api_url)
 web3 = Web3(provider)
 
 def get_ape_info(apeID):
+
 	assert isinstance(apeID,int), f"{apeID} is not an int"
 	assert 1 <= apeID, f"{apeID} must be at least 1"
-
 	data = {'owner': "", 'image': "", 'eyes': "" }
 	
 	#YOUR CODE HERE	
