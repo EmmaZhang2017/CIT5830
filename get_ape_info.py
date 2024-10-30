@@ -33,7 +33,7 @@ def get_ape_info(apeID):
 	data['owner'] = contract.functions.ownerOf(apeID).call()
     
     	# Get the token's URI for metadata
-    	token_uri = contract.functions.tokenURI(apeID).call()
+	token_uri = contract.functions.tokenURI(apeID).call()
     
     	# Fetch the metadata
     	response = requests.get(token_uri)
