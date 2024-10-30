@@ -35,7 +35,7 @@ def get_ape_info(apeID):
 	data['owner'] = contract.functions.ownerOf(apeID).call()
     
     	# Get the token's URI for metadata
-    	token_uri = contract.functions.tokenURI(apeID).call()
+	token_uri = contract.functions.tokenURI(apeID).call()
     
     	# Check if the URI is an IPFS link and convert it if needed
     	if token_uri.startswith("ipfs://"):
