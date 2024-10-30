@@ -49,8 +49,8 @@ def get_ape_info(apeID):
         	data['image'] = metadata.get('image', "")
         
         	# Convert IPFS image link if needed
-        	if data['image'].startswith("ipfs://"):
-            		data['image'] = data['image'].replace("ipfs://", "https://ipfs.io/ipfs/")
+        	#if data['image'].startswith("ipfs://"):
+            		#data['image'] = data['image'].replace("ipfs://", "https://ipfs.io/ipfs/")
         
         	# Look for "eyes" trait in the attributes
         	attributes = metadata.get('attributes', [])
