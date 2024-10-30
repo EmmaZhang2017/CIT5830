@@ -32,16 +32,24 @@ def get_ape_info(apeID):
 	contract = web3.eth.contract(address=contract_address, abi=abi)
 	
 	# Fetch the owner of the token
-	data['owner'] = contract.functions.ownerOf(apeID).call()
+    	data['owner'] = contract.functions.ownerOf(apeID).call()
     
     	# Get the token's URI for metadata
-	token_uri = contract.functions.tokenURI(apeID).call()
+    	token_uri = contract.functions.tokenURI(apeID).call()
+    
+    	# Check if the URI is an IPFS link and convert it if needed
+    	if token_uri.startswith("ipfs://"):
+        	token_uri = token_uri.replace("ipfs://", "https://ipfs.io/ipfs/")
     
     	# Fetch the metadata
-	response = requests.get(token_uri)
-	if response.status_code == 200:
-        	metadata = response.json()
+   	response = requests.get(token_uri)
+    	if response.status_code == 200:
+       		metadata = response.json()
         	data['image'] = metadata.get('image', "")
+        
+        	# Convert IPFS image link if needed
+        	if data['image'].startswith("ipfs://"):
+            		data['image'] = data['image'].replace("ipfs://", "https://ipfs.io/ipfs/")
         
         	# Look for "eyes" trait in the attributes
         	attributes = metadata.get('attributes', [])
@@ -49,9 +57,8 @@ def get_ape_info(apeID):
             		if attr.get('trait_type') == 'Eyes':
                 		data['eyes'] = attr.get('value', "")
                 		break
-	else:
-		print(f"Failed to retrieve metadata for apeID {apeID}")
-
+    	else:
+        	print(f"Failed to retrieve metadata for apeID {apeID}")
 
 
 
