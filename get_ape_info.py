@@ -32,7 +32,7 @@ def get_ape_info(apeID):
 	contract = web3.eth.contract(address=contract_address, abi=abi)
 	
 	# Fetch the owner of the token
-    	data['owner'] = contract.functions.ownerOf(apeID).call()
+	data['owner'] = contract.functions.ownerOf(apeID).call()
     
     	# Get the token's URI for metadata
     	token_uri = contract.functions.tokenURI(apeID).call()
