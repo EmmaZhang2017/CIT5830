@@ -36,7 +36,7 @@ def get_ape_info(apeID):
 	token_uri = contract.functions.tokenURI(apeID).call()
     
     	# Fetch the metadata
-    	response = requests.get(token_uri)
+	response = requests.get(token_uri)
     	if response.status_code == 200:
         	metadata = response.json()
         	data['image'] = metadata.get('image', "")
