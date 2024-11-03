@@ -4,6 +4,12 @@ from eth_account import Account
 import os
 from mnemonic import Mnemonic
 
+import sys
+sys.path.append("CIT5830")
+from gen_keys import get_keys
+
+
+
 def get_keys(challenge, keyId=0, filename="eth_mnemonic.txt"):
     """
     Generate a stable private key
