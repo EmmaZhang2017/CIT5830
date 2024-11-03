@@ -26,15 +26,15 @@ def verifySig():
     address, sig = signChallenge(challenge)
 
     w3 = Web3()
+    validSig = w3.eth.account.recover_message(challenge, signature=sig) == address  # Assigning validSig here
 
-    return w3.eth.account.recover_message(challenge, signature=sig) == address
-
+    return validSig
 
 if __name__ == '__main__':
     """
-        Test your function
+    Test your function
     """
     if verifySig():
-        print( f"You passed the challenge!" )
+        print("You passed the challenge!")
     else:
-        print( f"You failed the challenge!" )
+        print("You failed the challenge!")
