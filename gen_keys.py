@@ -1,9 +1,6 @@
 from web3 import Web3
 import eth_account
-from eth_account import Account
-from mnemonic import Mnemonic
 import os
-
 
 
 def get_keys(challenge,keyId = 0, filename = "eth_mnemonic.txt"):
