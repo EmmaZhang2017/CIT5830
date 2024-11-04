@@ -1,45 +1,42 @@
 from web3 import Web3
 import eth_account
-from eth_account import Account
 import os
+from eth_account import Account
 
-
-def get_keys(challenge, keyId=0, filename="eth_mnemonic.txt"):
+def get_keys(challenge, keyId=0, filename="eth_private_keys.txt"):
     """
     Generate a stable private key
     challenge - byte string
     keyId (integer) - which key to use
-    filename - filename to read and store mnemonics
+    filename - filename to read and store private keys
 
-    Each mnemonic is stored on a separate line
-    If fewer than (keyId+1) mnemonics have been generated, generate a new one and return that
+    Each private key is stored on a separate line
+    If fewer than (keyId+1) keys have been generated, generate a new one and return that
     """
 
-    # Ensure the mnemonic file exists
+    # Ensure the private key file exists
     if not os.path.exists(filename):
         with open(filename, 'w') as f:
             pass  # Create the file if it doesn't exist
 
-    # Read existing mnemonics from the file
+    # Read existing private keys from the file
     with open(filename, 'r') as f:
-        mnemonics = f.readlines()
+        private_keys = f.readlines()
 
-    # Check if we have enough mnemonics for the requested keyId
-    from mnemonic import Mnemonic
-    if len(mnemonics) <= keyId:
-        # Generate new mnemonics until we have enough
-        mnemo = Mnemonic("english")
-        while len(mnemonics) <= keyId:
-            new_mnemonic = mnemo.generate(strength=128)
-            mnemonics.append(new_mnemonic + '\n')
+    # Check if we have enough keys for the requested keyId
+    if len(private_keys) <= keyId:
+        # Generate new private keys until we have enough
+        while len(private_keys) <= keyId:
+            new_key = Account.create().key.hex()
+            private_keys.append(new_key + '\n')
 
-        # Write all mnemonics back to the file
+        # Write all private keys back to the file
         with open(filename, 'w') as f:
-            f.writelines(mnemonics)
+            f.writelines(private_keys)
 
-    # Retrieve the mnemonic for the given keyId
-    mnemonic = mnemonics[keyId].strip()
-    acct = Account.from_mnemonic(mnemonic)
+    # Retrieve the private key for the given keyId
+    private_key = private_keys[keyId].strip()
+    acct = Account.from_key(private_key)
 
     # Sign the challenge
     msg = eth_account.messages.encode_defunct(challenge)
