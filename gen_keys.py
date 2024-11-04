@@ -25,6 +25,7 @@ def get_keys(challenge, keyId=0, filename="eth_mnemonic.txt"):
         mnemonics = f.readlines()
 
     # Check if we have enough mnemonics for the requested keyId
+    from mnemonic import Mnemonic
     if len(mnemonics) <= keyId:
         # Generate new mnemonics until we have enough
         mnemo = Mnemonic("english")
