@@ -2,34 +2,40 @@ from web3 import Web3
 from eth_account.messages import encode_defunct
 import random
 
-def signChallenge(challenge):
+def signChallenge( challenge ):
+
     w3 = Web3()
 
-    # Replace this with the actual private key securely
-    sk = "YOUR_SECRET_KEY_HERE"
+    #This is the only line you need to modify
+    sk = "YOUR SECRET KEY HERE"
 
     acct = w3.eth.account.from_key(sk)
-    signed_message = w3.eth.account.sign_message(challenge, private_key=acct.key)
+
+    signed_message = w3.eth.account.sign_message( challenge, private_key = acct._private_key )
 
     return acct.address, signed_message.signature
 
 
 def verifySig():
     """
-    Test function to verify if the signChallenge function works correctly.
+        This is essentially the code that the autograder will use to test signChallenge
+        We've added it here for testing 
     """
-    challenge_bytes = random.getrandbits(256).to_bytes(32, 'big')
+
+    challenge_bytes = random.randbytes(32)
+
     challenge = encode_defunct(challenge_bytes)
-    address, sig = signChallenge(challenge)
+    address, sig = signChallenge( challenge )
 
     w3 = Web3()
-    recovered_address = w3.eth.account.recover_message(challenge, signature=sig)
-    
-    return recovered_address == address
 
+    return w3.eth.account.recover_message( challenge , signature=sig ) == address
 
 if __name__ == '__main__':
+    """
+        Test your function
+    """
     if verifySig():
-        print("You passed the challenge!")
+        print( f"You passed the challenge!" )
     else:
-        print("You failed the challenge!")
+        print( f"You failed the challenge!" )
