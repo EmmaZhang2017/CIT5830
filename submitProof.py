@@ -80,16 +80,30 @@ def build_merkle(leaves):
 
 
 def prove_merkle(merkle_tree, random_indx):
+    """
+        Takes a random_index to create a proof of inclusion for and a complete Merkle tree
+        as a list of lists where index 0 is the list of leaves, index 1 is the list of
+        parent hash values, up to index -1 which is the list of the root hash.
+        returns a proof of inclusion as list of values
+    """
     merkle_proof = []
     index = random_indx
+    
+    # Traverse from the leaves up to the root
     for level in range(len(merkle_tree) - 1):
-        if index % 2 == 0:  # left child
-            merkle_proof.append(merkle_tree[level + 1][index + 1] if index + 1 < len(merkle_tree[level + 1]) else None)
-        else:  # right child
-            merkle_proof.append(merkle_tree[level + 1][index - 1])
+        # If the index is even, we take the right sibling
+        if index % 2 == 0:  
+            # Check if there's a right sibling
+            if index + 1 < len(merkle_tree[level]):
+                merkle_proof.append(merkle_tree[level][index + 1])
+        else:  # If the index is odd, we take the left sibling
+            merkle_proof.append(merkle_tree[level][index - 1])
+        
+        # Move to the parent level
         index //= 2
+    
     return merkle_proof
-
+    
 
 
 
