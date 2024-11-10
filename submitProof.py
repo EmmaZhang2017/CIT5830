@@ -111,7 +111,7 @@ def sign_challenge(challenge):
     acct = get_account()
     eth_encoded_msg = eth_account.messages.encode_defunct(text=challenge)
     eth_sig = acct.sign_message(eth_encoded_msg)
-    return acct.address, eth_sig
+    return acct.address, eth_sig.signature.hex()  # Convert the signature to hex string
 
 
 
