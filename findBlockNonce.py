@@ -6,13 +6,9 @@ import random
 
 def mine_block(k, prev_hash, rand_lines):
     """
-        k - Number of trailing zeros in the binary representation (integer)
-        prev_hash - the hash of the previous block (bytes)
-        rand_lines - a set of "transactions," i.e., data to be included in this block (list of strings)
-
-        Complete this function to find a nonce such that 
-        sha256( prev_hash + rand_lines + nonce )
-        has k trailing zeros in its *binary* representation
+    k - Number of trailing zeros in the binary representation (integer)
+    prev_hash - the hash of the previous block (bytes)
+    rand_lines - a set of "transactions," i.e., data to be included in this block (list of strings)
     """
     if not isinstance(k, int) or k < 0:
         print("mine_block expects positive integer")
@@ -38,18 +34,16 @@ def mine_block(k, prev_hash, rand_lines):
         # Calculate the SHA-256 hash
         hash_result = hashlib.sha256(input_data).hexdigest()
         
-        # Convert hash to binary and check for trailing zeros
-        # We need to check the last k bits of the hash
-        if hash_result.endswith('0' * (k // 4)):
+        # Convert hash to binary and check for trailing binary zeros
+        binary_hash = bin(int(hash_result, 16))[2:].zfill(256)  # Ensure 256 bits
+        if binary_hash[-k:] == '0' * k:
             print(f"Found nonce: {nonce}, hash: {hash_result}")
             return nonce_bytes
         
         # Increment nonce for the next iteration
         nonce += 1
 
-    # This should never be reached
     return b'\x00'
-
 
 
 
