@@ -71,7 +71,8 @@ function createToken(
     address owner = address(this);  // Setting the contract itself as the owner
 
     // Create the new wrapped token with four arguments
-    BridgeToken newToken = new BridgeToken(name, symbol, initialSupply, owner);
+    //constructor( address _underlying, string memory name, string memory symbol, address admin ) 
+    BridgeToken newToken = new BridgeToken(_underlying_token, name, symbol, owner );
     address newTokenAddress = address(newToken);
 
     // Track the relationship between the underlying and wrapped tokens
