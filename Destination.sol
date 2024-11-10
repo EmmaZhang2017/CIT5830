@@ -62,12 +62,14 @@ function unwrap(address _wrapped_token, address _recipient, uint256 _amount) pub
 
 
 
-
 function createToken(address _underlying_token, string memory name, string memory symbol) public onlyRole(CREATOR_ROLE) returns (address) {
     require(underlying_tokens[_underlying_token] == address(0), "Destination: Wrapped token already exists for this underlying token");
 
+    // Specify initial supply as needed, here we assume it is set to 0
+    uint256 initialSupply = 0;
+
     // Create the new wrapped token
-    BridgeToken newToken = new BridgeToken(name, symbol);
+    BridgeToken newToken = new BridgeToken(name, symbol, msg.sender, initialSupply);
     address newTokenAddress = address(newToken);
 
     // Track the relationship between the underlying and wrapped tokens
@@ -82,8 +84,6 @@ function createToken(address _underlying_token, string memory name, string memor
 
     return newTokenAddress;
 }
-
-
 
 
 
