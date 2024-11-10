@@ -22,22 +22,25 @@ contract Destination is AccessControl {
         _grantRole(WARDEN_ROLE, admin);
     }
 
-function wrap(address _underlying_token, address _recipient, uint256 _amount) public onlyRole(WARDEN_ROLE) {
-     // Ensure the underlying token is known and a wrapped token exists
-     address wrappedTokenAddress = wrapped_tokens[_underlying_token];
-     require(wrappedTokenAddress != address(0), "Destination: Wrapped token not found for underlying token");
+function unwrap(address _wrapped_token, address _recipient, uint256 _amount) public {
+    // Ensure the wrapped token is known and an underlying token exists
+    address underlyingTokenAddress = underlying_tokens[_wrapped_token];
+    require(underlyingTokenAddress != address(0), "Destination: Underlying token not found for wrapped token");
 
-     // Transfer the underlying token to this contract
-     ERC20 underlyingToken = ERC20(_underlying_token);
-     require(underlyingToken.transferFrom(msg.sender, address(this), _amount), "Destination: Transfer failed");
+    // Burn the wrapped tokens
+    BridgeToken wrappedToken = BridgeToken(_wrapped_token);
+    require(wrappedToken.balanceOf(msg.sender) >= _amount, "Destination: Insufficient wrapped token balance");
+    wrappedToken.burn(_amount);  // Assume burn function only takes an amount
 
-     // Mint the equivalent amount of the wrapped token to the recipient
-     BridgeToken wrappedToken = BridgeToken(wrappedTokenAddress);
-     wrappedToken.mint(_recipient, _amount);
+    // Transfer the equivalent amount of the underlying token to the recipient
+    ERC20 underlyingToken = ERC20(underlyingTokenAddress);
+    require(underlyingToken.transfer(_recipient, _amount), "Destination: Transfer failed");
 
-     // Emit the wrap event
-     emit Wrap(_underlying_token, wrappedTokenAddress, _recipient, _amount);
- }
+    // Emit the unwrap event
+    emit Unwrap(underlyingTokenAddress, _wrapped_token, msg.sender, _recipient, _amount);
+}
+
+
 
 
 function unwrap(address _wrapped_token, address _recipient, uint256 _amount) public {
@@ -60,25 +63,28 @@ function unwrap(address _wrapped_token, address _recipient, uint256 _amount) pub
 
 
 
+
+
 function createToken(address _underlying_token, string memory name, string memory symbol) public onlyRole(CREATOR_ROLE) returns (address) {
-     require(underlying_tokens[_underlying_token] == address(0), "Destination: Wrapped token already exists for this underlying token");
+    require(underlying_tokens[_underlying_token] == address(0), "Destination: Wrapped token already exists for this underlying token");
 
-     // Create the new wrapped token
-     BridgeToken newToken = new BridgeToken(name, symbol, address(this));
-     address newTokenAddress = address(newToken);
+    // Create the new wrapped token
+    BridgeToken newToken = new BridgeToken(name, symbol);
+    address newTokenAddress = address(newToken);
 
-     // Track the relationship between the underlying and wrapped tokens
-     underlying_tokens[_underlying_token] = newTokenAddress;
-     wrapped_tokens[newTokenAddress] = _underlying_token;
+    // Track the relationship between the underlying and wrapped tokens
+    underlying_tokens[_underlying_token] = newTokenAddress;
+    wrapped_tokens[newTokenAddress] = _underlying_token;
 
-     // Store the wrapped token address
-     tokens.push(newTokenAddress);
+    // Store the wrapped token address
+    tokens.push(newTokenAddress);
 
-     // Emit the creation event
-     emit Creation(_underlying_token, newTokenAddress);
+    // Emit the creation event
+    emit Creation(_underlying_token, newTokenAddress);
 
-     return newTokenAddress;
- }
+    return newTokenAddress;
+}
+
 
 
 
