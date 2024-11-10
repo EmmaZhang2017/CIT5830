@@ -77,13 +77,12 @@ function tokensReceived(
     bytes calldata userData,
     bytes calldata operatorData
 ) external {
-    // Reentrancy control to prevent infinite recursion
     if (depth < max_depth) {
         depth++;
         emit Recurse(depth);
         
-        // Initiate a recursive withdrawal from the Bank
-        bank.withdraw();
+        // Adjusted withdrawal call based on Bank contract's actual function
+        bank.withdraw(); // Ensure this matches the Bank function name and signature
 
         depth--;
     }
