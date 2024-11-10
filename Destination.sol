@@ -66,7 +66,7 @@ function createToken(address _underlying_token, string memory name, string memor
     require(underlying_tokens[_underlying_token] == address(0), "Destination: Wrapped token already exists for this underlying token");
 
     // Create the new wrapped token
-    BridgeToken newToken = new BridgeToken(name, symbol);
+    BridgeToken newToken = new BridgeToken(name, symbol, initialSupply, owner);
     address newTokenAddress = address(newToken);
 
     // Track the relationship between the underlying and wrapped tokens
