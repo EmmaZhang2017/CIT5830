@@ -22,6 +22,18 @@ contract Destination is AccessControl {
         _grantRole(WARDEN_ROLE, admin);
     }
 
+
+function _mintWrappedToken(address _recipient, uint256 _amount, address _wrappedToken) internal {
+    BridgeToken wrappedToken = BridgeToken(_wrappedToken);
+    wrappedToken.mint(_recipient, _amount);
+}
+
+
+
+
+
+
+
 function wrap(address _underlying_token, address _recipient, uint256 _amount) public onlyRole(WARDEN_ROLE) {
     address wrappedTokenAddress = wrapped_tokens[_underlying_token];
     require(wrappedTokenAddress != address(0), "Destination: Wrapped token not found");
@@ -51,30 +63,27 @@ function unwrap(address _wrapped_token, address _recipient, uint256 _amount) pub
 
 
 
+function createToken(
+    address _underlying_token,
+    string memory name,
+    string memory symbol
+) public onlyRole(CREATOR_ROLE) returns (address) {
+    require(_underlying_token != address(0), "Destination: Invalid underlying token address");
+    require(underlying_tokens[_underlying_token] == address(0), "Destination: Wrapped token already exists for this underlying token");
+
+    address owner = address(this);
+    BridgeToken newToken = new BridgeToken(_underlying_token, name, symbol, owner);
+    address newTokenAddress = address(newToken);
+
+    underlying_tokens[_underlying_token] = newTokenAddress;
+    wrapped_tokens[newTokenAddress] = _underlying_token;
+    tokens.push(newTokenAddress);
+
+    emit Creation(_underlying_token, newTokenAddress);
+    return newTokenAddress;
+}
 
 
-    function createToken(
-        address _underlying_token,
-        string memory name,
-        string memory symbol
-    ) public onlyRole(CREATOR_ROLE) returns (address) {
-        require(underlying_tokens[_underlying_token] == address(0), "Destination: Wrapped token already exists for this underlying token");
 
-        // Deploy a new BridgeToken with appropriate parameters
-        address owner = address(this);
-        BridgeToken newToken = new BridgeToken(_underlying_token, name, symbol, owner);
-        address newTokenAddress = address(newToken);
 
-        // Update the mappings to track the relationship between the underlying and wrapped tokens
-        underlying_tokens[_underlying_token] = newTokenAddress;
-        wrapped_tokens[newTokenAddress] = _underlying_token;
-
-        // Store the wrapped token address
-        tokens.push(newTokenAddress);
-
-        // Emit the creation event
-        emit Creation(_underlying_token, newTokenAddress);
-
-        return newTokenAddress;
-    }
 }
