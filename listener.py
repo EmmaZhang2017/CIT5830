@@ -1,4 +1,13 @@
 import os
+from web3 import Web3
+from web3.contract import Contract
+from web3.providers.rpc import HTTPProvider
+from web3.middleware import geth_poa_middleware #Necessary for POA chains
+import json
+from datetime import datetime
+import pandas as pd
+
+eventfile = 'deposit_logs.csv'
 
 def scanBlocks(chain, start_block, end_block, contract_address):
     """
