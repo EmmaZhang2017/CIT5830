@@ -11,41 +11,39 @@ eventfile = 'deposit_logs.csv'
 
 def scanBlocks(chain, start_block, end_block, contract_address):
     """
-    chain - string (Either 'bsc' or 'avax')
-    start_block - integer first block to scan
-    end_block - integer last block to scan
-    contract_address - the address of the deployed contract
+    Scan blockchain events for 'Deposit' events and log them into a CSV file.
 
-    This function reads "Deposit" events from the specified contract,
-    and writes information about the events to the file "deposit_logs.csv"
+    chain - string: ('bsc' or 'avax')
+    start_block - int: Starting block to scan
+    end_block - int: Ending block to scan
+    contract_address - string: Deployed contract address to monitor
     """
+    # Set up the RPC URL for the specified chain
     if chain == 'avax':
         api_url = "https://api.avax-test.network/ext/bc/C/rpc"  # AVAX C-chain testnet
-
-    if chain == 'bsc':
+    elif chain == 'bsc':
         api_url = "https://data-seed-prebsc-1-s1.binance.org:8545/"  # BSC testnet
-
-    if chain in ['avax', 'bsc']:
-        w3 = Web3(Web3.HTTPProvider(api_url))
-        # inject the poa compatibility middleware to the innermost layer
-        w3.middleware_onion.inject(geth_poa_middleware, layer=0)
     else:
-        w3 = Web3(Web3.HTTPProvider(api_url))
+        print(f"Unsupported chain: {chain}")
+        return
 
+    # Initialize Web3 and inject middleware for POA compatibility
+    w3 = Web3(Web3.HTTPProvider(api_url))
+    w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+
+    # Define the ABI for the Deposit event
     DEPOSIT_ABI = json.loads('[ { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "address", "name": "token", "type": "address" }, { "indexed": true, "internalType": "address", "name": "recipient", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "Deposit", "type": "event" }]')
     contract = w3.eth.contract(address=contract_address, abi=DEPOSIT_ABI)
 
-    arg_filter = {}
-
+    # Handle block numbers if 'latest' is specified
     if start_block == "latest":
         start_block = w3.eth.get_block_number()
     if end_block == "latest":
         end_block = w3.eth.get_block_number()
 
+    # Validate the block range
     if end_block < start_block:
-        print(f"Error end_block < start_block!")
-        print(f"end_block = {end_block}")
-        print(f"start_block = {start_block}")
+        print(f"Error: end_block ({end_block}) is less than start_block ({start_block}).")
         return
 
     if start_block == end_block:
@@ -55,34 +53,36 @@ def scanBlocks(chain, start_block, end_block, contract_address):
 
     events_data = []
 
-    if end_block - start_block < 30:
-        event_filter = contract.events.Deposit.create_filter(fromBlock=start_block, toBlock=end_block, argument_filters=arg_filter)
-        events = event_filter.get_all_entries()
+    # Scan blocks for events
+    for block_num in range(start_block, end_block + 1):
+        try:
+            event_filter = contract.events.Deposit.create_filter(
+                fromBlock=block_num, toBlock=block_num
+            )
+            events = event_filter.get_all_entries()
+        except Exception as e:
+            print(f"Error fetching events for block {block_num}: {e}")
+            continue
 
         for event in events:
-            block_number = event["blockNumber"]
-            token = event["args"]["token"]
-            recipient = event["args"]["recipient"]
-            amount = event["args"]["amount"]
-            events_data.append([block_number, token, recipient, amount])
-    else:
-        for block_num in range(start_block, end_block + 1):
-            event_filter = contract.events.Deposit.create_filter(fromBlock=block_num, toBlock=block_num, argument_filters=arg_filter)
-            events = event_filter.get_all_entries()
+            # Print the event to inspect its structure (useful for debugging)
+            print(event)
 
-            for event in events:
-                block_number = event["blockNumber"]
-                token = event["args"]["token"]
-                recipient = event["args"]["recipient"]
-                amount = event["args"]["amount"]
-                events_data.append([block_number, token, recipient, amount])
+            # Access event attributes safely
+            block_number = event.get("blockNumber")
+            token = event["args"].get("token")
+            recipient = event["args"].get("recipient")
+            amount = event["args"].get("amount")
+            transaction_hash = event.get("transactionHash", "N/A")
+
+            events_data.append([block_number, token, recipient, amount, transaction_hash])
 
     # Write data to CSV
     if events_data:
         if not os.path.isfile(eventfile):
             # Create a new file with headers
             with open(eventfile, 'w') as f:
-                f.write("block_number,token,recipient,amount\n")
+                f.write("block_number,token,recipient,amount,transaction_hash\n")
         with open(eventfile, 'a') as f:
             for data in events_data:
                 f.write(','.join(map(str, data)) + '\n')
