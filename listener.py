@@ -69,23 +69,72 @@ def scanBlocks(chain, start_block, end_block, contract_address):
             print(event)
 
             # Access event attributes safely
-            block_number = event.get("blockNumber")
-            token = event["args"].get("token")
-            recipient = event["args"].get("recipient")
-            amount = event["args"].get("amount")
+            block_number = event.get("blockNumber", "N/A")
+            token = event["args"].get("token", "N/A")
+            recipient = event["args"].get("recipient", "N/A")
+            amount = event["args"].get("amount", 0)
             transaction_hash = event.get("transactionHash", "N/A")
 
-            events_data.append([block_number, token, recipient, amount, transaction_hash])
+            events_data.append([
+                block_number,
+                token,
+                recipient,
+                amount,
+                transaction_hash.hex() if isinstance(transaction_hash, bytes) else transaction_hash
+            ])
 
     # Write data to CSV
-    if events_data:
-        if not os.path.isfile(eventfile):
-            # Create a new file with headers
-            with open(eventfile, 'w') as f:
-                f.write("block_number,token,recipient,amount,transaction_hash\n")
-        with open(eventfile, 'a') as f:
-            for data in events_data:
-                f.write(','.join(map(str, data)) + '\n')
-        print(f"Logged {len(events_data)} events to {eventfile}")
-    else:
+    write_to_csv(events_data)
+
+
+def write_to_csv(events_data):
+    """
+    Write event data to a CSV file, ensuring consistent rows.
+    """
+    if not events_data:
         print("No events found in the specified block range.")
+        return
+
+    # Check if the file already exists
+    file_exists = os.path.isfile(eventfile)
+
+    # Open the file in append mode
+    with open(eventfile, 'a', newline='') as f:
+        writer = csv.writer(f)
+
+        # Write headers if the file is new
+        if not file_exists:
+            writer.writerow(["block_number", "token", "recipient", "amount", "transaction_hash"])
+
+        # Write event data rows
+        for data in events_data:
+            writer.writerow(data)
+
+    print(f"Logged {len(events_data)} events to {eventfile}")
+
+
+def clean_csv_file():
+    """
+    Clean the CSV file to ensure all rows have the correct number of fields.
+    """
+    if not os.path.isfile(eventfile):
+        print(f"{eventfile} does not exist.")
+        return
+
+    valid_rows = []
+
+    # Read the existing CSV file and filter invalid rows
+    with open(eventfile, 'r') as f:
+        reader = csv.reader(f)
+        headers = next(reader)  # Save headers
+        for row in reader:
+            if len(row) == 5:  # Ensure each row has the correct number of fields
+                valid_rows.append(row)
+
+    # Rewrite the file with only valid rows
+    with open(eventfile, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(headers)
+        writer.writerows(valid_rows)
+
+    print(f"Cleaned {eventfile}, keeping {len(valid_rows)} valid rows.")
