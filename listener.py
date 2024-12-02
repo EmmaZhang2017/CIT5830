@@ -36,10 +36,7 @@ def scanBlocks(chain, start_block, end_block, contract_address):
         print(f"Error: end_block ({end_block}) is less than start_block ({start_block}).")
         return
 
-    if start_block == end_block:
-        print(f"Scanning block {start_block} on {chain}")
-    else:
-        print(f"Scanning blocks {start_block} - {end_block} on {chain}")
+    print(f"Scanning blocks {start_block} - {end_block} on {chain}")
 
     events_data = []
 
@@ -54,19 +51,30 @@ def scanBlocks(chain, start_block, end_block, contract_address):
             continue
 
         for event in events:
-            block_number = event.get("blockNumber", "N/A")
-            token = event["args"].get("token", "N/A")
-            recipient = event["args"].get("recipient", "N/A")
-            amount = event["args"].get("amount", 0)
-            transaction_hash = event.get("transactionHash", "N/A")
+            try:
+                block_number = event.get("blockNumber", "N/A")
+                token = event["args"].get("token", "N/A")
+                recipient = event["args"].get("recipient", "N/A")
+                amount = event["args"].get("amount", 0)
+                transaction_hash = event.get("transactionHash", "N/A")
 
-            events_data.append([
-                block_number,
-                token,
-                recipient,
-                amount,
-                transaction_hash.hex() if isinstance(transaction_hash, bytes) else transaction_hash
-            ])
+                # Ensure valid formatting for transaction_hash
+                transaction_hash = (
+                    transaction_hash.hex()
+                    if isinstance(transaction_hash, bytes)
+                    else str(transaction_hash)
+                )
+
+                events_data.append([
+                    block_number,
+                    token,
+                    recipient,
+                    amount,
+                    transaction_hash
+                ])
+            except KeyError as e:
+                print(f"Error processing event: {e}")
+                continue
 
     write_to_csv(events_data)
 
@@ -78,7 +86,7 @@ def write_to_csv(events_data):
 
     file_exists = os.path.isfile(eventfile)
 
-    with open(eventfile, 'a', newline='') as f:
+    with open(eventfile, 'a', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
 
         if not file_exists:
@@ -98,16 +106,20 @@ def clean_csv_file():
 
     valid_rows = []
 
-    with open(eventfile, 'r') as f:
+    with open(eventfile, 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
-        headers = next(reader)
+        headers = next(reader, None)  # Get headers
+        if headers is None or len(headers) != 5:
+            print("Invalid CSV format: missing or incorrect headers.")
+            return
+
         for row in reader:
             if len(row) == 5:
                 valid_rows.append(row)
             else:
                 print(f"Invalid row skipped: {row}")
 
-    with open(eventfile, 'w', newline='') as f:
+    with open(eventfile, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerow(headers)
         writer.writerows(valid_rows)
