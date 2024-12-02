@@ -8,7 +8,10 @@ from datetime import datetime
 import pandas as pd
 import csv
 
-import tempfile  # Add this import for temporary file handling
+import shutil  # Import shutil for file operations
+import tempfile  # Import tempfile for creating temporary files
+
+
 
 
 eventfile = 'deposit_logs.csv'
