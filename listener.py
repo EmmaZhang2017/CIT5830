@@ -121,6 +121,7 @@ def write_to_csv(events_data):
 
 import shutil  # Import shutil for moving files across devices
 
+
 def write_to_csv(events_data):
     """Write event data to the deposit logs CSV file."""
     if not events_data:
@@ -132,9 +133,9 @@ def write_to_csv(events_data):
     with tempfile.NamedTemporaryFile('w', delete=False, newline='', encoding='utf-8') as tempf:
         writer = csv.writer(tempf)
 
-        # Write headers if the file doesn't exist
+        # Write headers with expected column names
         if not file_exists:
-            writer.writerow(["block_number", "token", "recipient", "amount", "transaction_hash"])
+            writer.writerow(["block_number", "token", "recipient", "amount", "transactionHash"])
 
         for data in events_data:
             if len(data) == 5:
@@ -145,4 +146,3 @@ def write_to_csv(events_data):
     # Use shutil.move to handle cross-device file moves
     shutil.move(tempf.name, eventfile)
     print(f"Events written to {eventfile}")
-
