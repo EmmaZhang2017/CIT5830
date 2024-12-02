@@ -11,6 +11,7 @@ import csv
 eventfile = 'deposit_logs.csv'
 
 
+
 def scanBlocks(chain, start_block, end_block, contract_address):
     if chain == 'avax':
         api_url = "https://api.avax-test.network/ext/bc/C/rpc"  # AVAX C-chain testnet
