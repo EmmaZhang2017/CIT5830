@@ -99,7 +99,7 @@ def write_to_csv(events_data):
     with tempfile.NamedTemporaryFile('w', delete=False, newline='', encoding='utf-8') as tempf:
         writer = csv.writer(tempf)
 
-        # Write headers with expected column names
+        # Write headers with the expected column names
         if not file_exists:
             writer.writerow(["block_number", "token", "recipient", "amount", "transactionHash"])
 
@@ -112,6 +112,12 @@ def write_to_csv(events_data):
     # Use shutil.move to handle cross-device file moves
     shutil.move(tempf.name, eventfile)
     print(f"Events written to {eventfile}")
+
+    # Inspect headers for debugging
+    inspect_csv_file()
+
+
+
 
 
 def clean_csv_file():
