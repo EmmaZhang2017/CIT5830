@@ -119,39 +119,30 @@ def write_to_csv(events_data):
     print(f"Events written to {eventfile}")
 
 
-def clean_csv_file():
-    """Clean the deposit logs CSV file by removing invalid rows."""
-    if not os.path.isfile(eventfile):
-        print(f"{eventfile} does not exist.")
+import shutil  # Import shutil for moving files across devices
+
+def write_to_csv(events_data):
+    """Write event data to the deposit logs CSV file."""
+    if not events_data:
+        print("No events found in the specified block range.")
         return
 
-    valid_rows = []
-    invalid_rows_count = 0
+    file_exists = os.path.isfile(eventfile)
 
-    with open(eventfile, 'r', encoding='utf-8') as f:
-        reader = csv.reader(f)
-        headers = next(reader, None)  # Get headers
-        if headers is None or len(headers) != 5:
-            print("Invalid CSV format: missing or incorrect headers.")
-            return
+    with tempfile.NamedTemporaryFile('w', delete=False, newline='', encoding='utf-8') as tempf:
+        writer = csv.writer(tempf)
 
-        for row in reader:
-            if len(row) == 5:
-                valid_rows.append(row)
+        # Write headers if the file doesn't exist
+        if not file_exists:
+            writer.writerow(["block_number", "token", "recipient", "amount", "transaction_hash"])
+
+        for data in events_data:
+            if len(data) == 5:
+                writer.writerow(data)
             else:
-                invalid_rows_count += 1
-                print(f"Invalid row skipped: {row}")
+                print(f"Skipping invalid data: {data}")
 
-    with open(eventfile, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        writer.writerow(headers)
-        writer.writerows(valid_rows)
+    # Use shutil.move to handle cross-device file moves
+    shutil.move(tempf.name, eventfile)
+    print(f"Events written to {eventfile}")
 
-    print(f"Cleaned {eventfile}.")
-    print(f"Valid rows retained: {len(valid_rows)}")
-    print(f"Invalid rows removed: {invalid_rows_count}")
-
-
-# Example Usage
-# scanBlocks('bsc', 100000, 100010, '0xYourContractAddressHere')
-# clean_csv_file()
