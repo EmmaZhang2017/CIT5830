@@ -13,6 +13,8 @@ eventfile = 'deposit_logs.csv'
 
 
 def scanBlocks(chain, start_block, end_block, contract_address):
+    """Scan blockchain blocks for Deposit events."""
+    # Define RPC URLs for supported chains
     if chain == 'avax':
         api_url = "https://api.avax-test.network/ext/bc/C/rpc"  # AVAX C-chain testnet
     elif chain == 'bsc':
@@ -21,12 +23,19 @@ def scanBlocks(chain, start_block, end_block, contract_address):
         print(f"Unsupported chain: {chain}")
         return
 
-    w3 = Web3(Web3.HTTPProvider(api_url))
-    w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+    try:
+        # Initialize Web3 connection
+        w3 = Web3(Web3.HTTPProvider(api_url))
+        w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+    except Exception as e:
+        print(f"Error connecting to {chain} RPC: {e}")
+        return
 
+    # Define the ABI for the Deposit event
     DEPOSIT_ABI = json.loads('[ { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "address", "name": "token", "type": "address" }, { "indexed": true, "internalType": "address", "name": "recipient", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "Deposit", "type": "event" }]')
     contract = w3.eth.contract(address=contract_address, abi=DEPOSIT_ABI)
 
+    # Resolve block numbers
     if start_block == "latest":
         start_block = w3.eth.get_block_number()
     if end_block == "latest":
@@ -42,6 +51,7 @@ def scanBlocks(chain, start_block, end_block, contract_address):
 
     for block_num in range(start_block, end_block + 1):
         try:
+            # Create event filter for the current block
             event_filter = contract.events.Deposit.create_filter(
                 fromBlock=block_num, toBlock=block_num
             )
@@ -52,6 +62,7 @@ def scanBlocks(chain, start_block, end_block, contract_address):
 
         for event in events:
             try:
+                # Extract event details
                 block_number = event.get("blockNumber", "N/A")
                 token = event["args"].get("token", "N/A")
                 recipient = event["args"].get("recipient", "N/A")
@@ -80,15 +91,17 @@ def scanBlocks(chain, start_block, end_block, contract_address):
 
 
 def write_to_csv(events_data):
+    """Write event data to the deposit logs CSV file."""
     if not events_data:
         print("No events found in the specified block range.")
         return
 
     file_exists = os.path.isfile(eventfile)
 
-    with open(eventfile, 'a', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
+    with tempfile.NamedTemporaryFile('w', delete=False, newline='', encoding='utf-8') as tempf:
+        writer = csv.writer(tempf)
 
+        # Write headers if the file doesn't exist
         if not file_exists:
             writer.writerow(["block_number", "token", "recipient", "amount", "transaction_hash"])
 
@@ -98,13 +111,19 @@ def write_to_csv(events_data):
             else:
                 print(f"Skipping invalid data: {data}")
 
+    # Replace the original file with the new one
+    os.replace(tempf.name, eventfile)
+    print(f"Events written to {eventfile}")
+
 
 def clean_csv_file():
+    """Clean the deposit logs CSV file by removing invalid rows."""
     if not os.path.isfile(eventfile):
         print(f"{eventfile} does not exist.")
         return
 
     valid_rows = []
+    invalid_rows_count = 0
 
     with open(eventfile, 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
@@ -117,6 +136,7 @@ def clean_csv_file():
             if len(row) == 5:
                 valid_rows.append(row)
             else:
+                invalid_rows_count += 1
                 print(f"Invalid row skipped: {row}")
 
     with open(eventfile, 'w', newline='', encoding='utf-8') as f:
@@ -124,4 +144,11 @@ def clean_csv_file():
         writer.writerow(headers)
         writer.writerows(valid_rows)
 
-    print(f"Cleaned {eventfile}, keeping {len(valid_rows)} valid rows.")
+    print(f"Cleaned {eventfile}.")
+    print(f"Valid rows retained: {len(valid_rows)}")
+    print(f"Invalid rows removed: {invalid_rows_count}")
+
+
+# Example Usage
+# scanBlocks('bsc', 100000, 100010, '0xYourContractAddressHere')
+# clean_csv_file()
