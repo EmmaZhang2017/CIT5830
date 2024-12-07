@@ -40,55 +40,6 @@ def getContractInfo(chain):
 
     return contracts[chain]
 
-def wrap(chain, event_args):
-    """
-    Wrap function to handle cross-chain operations.
-    """
-    w3 = connectTo(chain)
-    contract_info = getContractInfo(chain)
-
-    contract_address = Web3.to_checksum_address(contract_info["address"])
-    contract_abi = contract_info["abi"]
-    contract = w3.eth.contract(address=contract_address, abi=contract_abi)
-
-    # Call the wrap function on the destination chain
-    tx = contract.functions.wrap(
-        event_args["user"],
-        event_args["amount"]
-    ).build_transaction({
-        "from": event_args["user"],
-        "nonce": w3.eth.get_transaction_count(event_args["user"]),
-        "gas": 300000,
-        "gasPrice": w3.to_wei('20', 'gwei')
-    })
-
-    # Print the transaction for now (signing required for real execution)
-    print(f"Wrap Transaction: {tx}")
-
-def withdraw(chain, event_args):
-    """
-    Withdraw function to handle cross-chain operations.
-    """
-    w3 = connectTo(chain)
-    contract_info = getContractInfo(chain)
-
-    contract_address = Web3.to_checksum_address(contract_info["address"])
-    contract_abi = contract_info["abi"]
-    contract = w3.eth.contract(address=contract_address, abi=contract_abi)
-
-    # Call the withdraw function on the source chain
-    tx = contract.functions.withdraw(
-        event_args["user"],
-        event_args["amount"]
-    ).build_transaction({
-        "from": event_args["user"],
-        "nonce": w3.eth.get_transaction_count(event_args["user"]),
-        "gas": 300000,
-        "gasPrice": w3.to_wei('20', 'gwei')
-    })
-
-    # Print the transaction for now (signing required for real execution)
-    print(f"Withdraw Transaction: {tx}")
 
 def scanBlocks(chain):
     """
