@@ -9,7 +9,11 @@ source_chain = 'avax'
 destination_chain = 'bsc'
 contract_info = "contract_info.json"
 
+
 def connectTo(chain):
+    """
+    Connects to the specified blockchain.
+    """
     if chain == 'avax':
         api_url = "https://api.avax-test.network/ext/bc/C/rpc"  # AVAX C-chain testnet
 
@@ -23,6 +27,7 @@ def connectTo(chain):
     # Inject the POA compatibility middleware to the innermost layer
     w3.middleware_onion.inject(geth_poa_middleware, layer=0)
     return w3
+
 
 def getContractInfo(chain):
     """
@@ -39,6 +44,62 @@ def getContractInfo(chain):
         sys.exit(1)
 
     return contracts[chain]
+
+
+def wrap(chain, event_args):
+    """
+    Function to handle 'wrap' on the destination chain.
+    """
+    w3 = connectTo(chain)
+    contract_info = getContractInfo(chain)
+    contract_address = Web3.to_checksum_address(contract_info["address"])
+    contract_abi = contract_info["abi"]
+    contract = w3.eth.contract(address=contract_address, abi=contract_abi)
+
+    # Build and send transaction for the wrap function
+    tx = contract.functions.wrap(
+        event_args["recipient"],
+        event_args["amount"]
+    ).build_transaction({
+        "from": event_args["recipient"],
+        "nonce": w3.eth.get_transaction_count(event_args["recipient"]),
+        "gas": 300000,
+        "gasPrice": w3.to_wei('20', 'gwei')
+    })
+
+    print(f"Wrap Transaction: {tx}")
+    # Uncomment below line if you have access to private keys to sign and send the transaction
+    # signed_tx = w3.eth.account.sign_transaction(tx, private_key="PRIVATE_KEY")
+    # tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+    # print(f"Transaction sent: {tx_hash.hex()}")
+
+
+def withdraw(chain, event_args):
+    """
+    Function to handle 'withdraw' on the source chain.
+    """
+    w3 = connectTo(chain)
+    contract_info = getContractInfo(chain)
+    contract_address = Web3.to_checksum_address(contract_info["address"])
+    contract_abi = contract_info["abi"]
+    contract = w3.eth.contract(address=contract_address, abi=contract_abi)
+
+    # Build and send transaction for the withdraw function
+    tx = contract.functions.withdraw(
+        event_args["recipient"],
+        event_args["amount"]
+    ).build_transaction({
+        "from": event_args["recipient"],
+        "nonce": w3.eth.get_transaction_count(event_args["recipient"]),
+        "gas": 300000,
+        "gasPrice": w3.to_wei('20', 'gwei')
+    })
+
+    print(f"Withdraw Transaction: {tx}")
+    # Uncomment below line if you have access to private keys to sign and send the transaction
+    # signed_tx = w3.eth.account.sign_transaction(tx, private_key="PRIVATE_KEY")
+    # tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+    # print(f"Transaction sent: {tx_hash.hex()}")
 
 
 def scanBlocks(chain):
@@ -66,14 +127,14 @@ def scanBlocks(chain):
     print(f"Scanning the last 5 blocks on {chain} chain:")
     for block_num in range(latest_block - 4, latest_block + 1):
         block = w3.eth.get_block(block_num, full_transactions=True)
-        
+
         # Process transactions in the block
         for tx in block["transactions"]:
             try:
                 # Decode logs from transaction receipts
                 receipt = w3.eth.get_transaction_receipt(tx["hash"])
                 logs = contract.events.Deposit().process_receipt(receipt) if chain == "source" else contract.events.Unwrap().process_receipt(receipt)
-                
+
                 # Process events
                 for log in logs:
                     if chain == "source":
@@ -83,5 +144,13 @@ def scanBlocks(chain):
                         print(f"Unwrap event found: {log['args']}")
                         withdraw(source_chain, log["args"])  # Call withdraw function
             except Exception as e:
-                # Ignore transactions that don't match event signatures
-                pass
+                print(f"Error processing transaction: {e}")
+
+
+# Example usage
+if __name__ == "__main__":
+    # Scan source chain for Deposit events
+    scanBlocks("source")
+
+    # Scan destination chain for Unwrap events
+    scanBlocks("destination")
